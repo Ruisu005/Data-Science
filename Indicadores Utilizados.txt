@@ -1,0 +1,45 @@
+/* Indicadores */
+
+-- Indicador 1: Ingresos totales por veterinario
+select nombre_vet, SUM(precio) as ingresos_totales
+from veterinario
+join mascotas on veterinario.id_v = mascotas.fk_veterinario
+join medicinas on mascotas.fk_medicina = medicinas.id_medicina
+join tipo on medicinas.fk_tipo = tipo.id_tipo
+group by nombre_vet;
+
+-- Indicador 2: Numero de visitas por mascota
+select nombre, COUNT(*) as num_visitas
+from mascotas
+join Hecho_Visita on mascotas.id = Hecho_Visita.fk_mascota
+group by nombre;
+
+-- Indicador 3: Ingresos totales por tipo de medicina
+select nombre_tipo, SUM(precio) as ingresos_totales
+from tipo
+join medicinas on tipo.id_tipo = medicinas.fk_tipo
+join mascotas on medicinas.id_medicina = mascotas.fk_medicina
+join Hecho_Visita on mascotas.id = Hecho_Visita.fk_mascota
+group by nombre_tipo;
+
+-- Indicador4: Top 5 de medicinas mas recetadas
+select nombre_medicina, COUNT(*) as num_recetas
+from medicinas
+join Hecho_Visita ON medicinas.id_medicina = Hecho_Visita.fk_medicina
+group by nombre_medicina
+order by num_recetas desc
+limit 5;
+
+-- Indicador 5: Ingresos totales por dueño
+select nombre_dueño, SUM(precio_medicina) as precio_medicina
+from Dim_Dueño
+inner join Dim_Mascota on Dim_Dueño.id_dueño = Dim_Mascota.fk_dueño
+inner join Hecho_Visita on Dim_Mascota.id_mascota = Hecho_Visita.fk_mascota
+group by nombre_dueño;
+
+-- Indicador 6: Numero de mascotas por dueño
+select nombre_dueño, COUNT(*) as num_mascotas
+from Dim_Dueño
+inner join Dim_Mascota on Dim_Dueño.id_dueño = Dim_Mascota.fk_dueño
+group by nombre_dueño;
+
