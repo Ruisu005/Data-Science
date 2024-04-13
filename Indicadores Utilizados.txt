@@ -1,45 +1,118 @@
 /* Indicadores */
 
--- Indicador 1: Ingresos totales por veterinario
-select nombre_vet, SUM(precio) as ingresos_totales
-from veterinario
-join mascotas on veterinario.id_v = mascotas.fk_veterinario
-join medicinas on mascotas.fk_medicina = medicinas.id_medicina
-join tipo on medicinas.fk_tipo = tipo.id_tipo
-group by nombre_vet;
+-- Indicador 1: Tipo de tratamiento mas solicitado 
+SELECT Tipos_tratamientos AS Tipo_de_tratamiento, COUNT(*) AS Cantidad
+FROM visitas
+JOIN tratamientos ON visitas.Idtratamiento = tratamientos.Idtratamiento
+GROUP BY Tipos_tratamientos
+ORDER BY Cantidad DESC
+LIMIT 1;
 
--- Indicador 2: Numero de visitas por mascota
-select nombre, COUNT(*) as num_visitas
-from mascotas
-join Hecho_Visita on mascotas.id = Hecho_Visita.fk_mascota
-group by nombre;
+-- Indicador 2: Que tipo de animal es el mas registrado
+SELECT Animales AS Tipo_de_animal, COUNT(*) AS Cantidad
+FROM animales
+JOIN tpanimales ON animales.Idtipo = tpanimales.Idtipo
+GROUP BY Animales
+ORDER BY Cantidad DESC
+LIMIT 1;
 
--- Indicador 3: Ingresos totales por tipo de medicina
-select nombre_tipo, SUM(precio) as ingresos_totales
-from tipo
-join medicinas on tipo.id_tipo = medicinas.fk_tipo
-join mascotas on medicinas.id_medicina = mascotas.fk_medicina
-join Hecho_Visita on mascotas.id = Hecho_Visita.fk_mascota
-group by nombre_tipo;
+-- Indicador 3: Medicamento más solicitado durante la semana y su tratamiento
+SELECT m.Nombre AS Medicamento, t.Tipos_tratamientos AS Tratamiento, COUNT(*) AS Cantidad_de_solicitudes
+FROM visitas v
+JOIN medicamentos m ON v.Idmedicamentos = m.Idmedicamentos
+JOIN tratamientos t ON v.Idtratamiento = t.Idtratamiento
+JOIN fecha f ON v.Idfecha = f.Idfecha
+GROUP BY m.Nombre, t.Tipos_tratamientos
+ORDER BY Cantidad_de_solicitudes DESC
+LIMIT 1;
 
--- Indicador4: Top 5 de medicinas mas recetadas
-select nombre_medicina, COUNT(*) as num_recetas
-from medicinas
-join Hecho_Visita ON medicinas.id_medicina = Hecho_Visita.fk_medicina
-group by nombre_medicina
-order by num_recetas desc
-limit 5;
+-- Indicador 4: En que zona mas vienen los perros
+SELECT Zona, COUNT(*) AS Cantidad_de_perros
+FROM animales a
+JOIN cliente c ON a.Idcliente = c.Idcliente
+JOIN tpanimales t ON a.Idtipo = t.Idtipo
+WHERE t.Animales = 'Perro'
+GROUP BY Zona
+ORDER BY Cantidad_de_perros DESC
+LIMIT 1;
 
--- Indicador 5: Ingresos totales por dueño
-select nombre_dueño, SUM(precio_medicina) as precio_medicina
-from Dim_Dueño
-inner join Dim_Mascota on Dim_Dueño.id_dueño = Dim_Mascota.fk_dueño
-inner join Hecho_Visita on Dim_Mascota.id_mascota = Hecho_Visita.fk_mascota
-group by nombre_dueño;
+-- Indicador 5: Que dia de la semana es el mas solicitado
+SELECT Dia_semana, COUNT(*) AS Cantidad_de_visitas
+FROM visitas v
+JOIN fecha f ON v.Idfecha = f.Idfecha
+GROUP BY Dia_semana
+ORDER BY Cantidad_de_visitas DESC
+LIMIT 1;
 
--- Indicador 6: Numero de mascotas por dueño
-select nombre_dueño, COUNT(*) as num_mascotas
-from Dim_Dueño
-inner join Dim_Mascota on Dim_Dueño.id_dueño = Dim_Mascota.fk_dueño
-group by nombre_dueño;
+-- Indicador 6: Día de la semana con mayor cantidad de visitas para animales de tipo "Perro"
+SELECT f.Dia_semana, COUNT(*) AS Cantidad_de_visitas
+FROM visitas v
+JOIN animales a ON v.Idanimales = a.Idanimales
+JOIN tpAnimales tp ON a.Idtipo = tp.Idtipo
+JOIN fecha f ON v.Idfecha = f.Idfecha
+WHERE tp.Animales = 'Perro'
+GROUP BY f.Dia_semana
+ORDER BY Cantidad_de_visitas DESC
+LIMIT 1;
+
+-- Indicador 7: Medicamento más rentable por tipo de tratamiento
+SELECT tr.Tipos_tratamientos AS Tipo_de_tratamiento, m.Nombre AS Medicamento, SUM(v.Monto_a_pagar) AS Ingresos_por_medicamento
+FROM visitas v
+JOIN medicamentos m ON v.Idmedicamentos = m.Idmedicamentos
+JOIN tratamientos tr ON v.Idtratamiento = tr.Idtratamiento
+GROUP BY tr.Tipos_tratamientos, m.Nombre
+ORDER BY Tipo_de_tratamiento, Ingresos_por_medicamento DESC;
+
+-- Indicador 8: Cliente con mayor cantidad de animales registrados
+SELECT c.Nombre AS Cliente, COUNT(*) AS Cantidad_de_animales_registrados
+FROM cliente c
+JOIN animales a ON c.Idcliente = a.Idcliente
+GROUP BY c.Nombre
+ORDER BY Cantidad_de_animales_registrados DESC
+LIMIT 1;
+
+-- Indicador 9: Día de la semana con mayor cantidad de tratamientos realizados
+SELECT f.Dia_semana, COUNT(*) AS Cantidad_de_tratamientos_realizados
+FROM visitas v
+JOIN fecha f ON v.Idfecha = f.Idfecha
+GROUP BY f.Dia_semana
+ORDER BY Cantidad_de_tratamientos_realizados DESC
+LIMIT 1;
+
+-- Indicador 10: Animal más registrado en el mes de febrero
+SELECT tp.Animales AS Tipo_de_animal, COUNT(*) AS Total_registrados
+FROM animales a
+JOIN tpAnimales tp ON a.Idtipo = tp.Idtipo
+JOIN visitas v ON a.Idanimales = v.Idanimales
+JOIN fecha f ON v.Idfecha = f.Idfecha
+WHERE f.Mes = 'febrero'
+GROUP BY tp.Animales
+ORDER BY Total_registrados DESC
+LIMIT 1;
+
+-- Indicador 11: Animal menos registrado en el mes de febrero
+SELECT tp.Animales AS Tipo_de_animal, COUNT(*) AS Total_registrados
+FROM animales a
+JOIN tpAnimales tp ON a.Idtipo = tp.Idtipo
+JOIN visitas v ON a.Idanimales = v.Idanimales
+JOIN fecha f ON v.Idfecha = f.Idfecha
+WHERE f.Mes = 'Febrero'
+GROUP BY tp.Animales
+ORDER BY Total_registrados ASC
+LIMIT 1;
+
+-- Indicador 12: Animal menos registrado de todos
+SELECT tp.Animales AS Tipo_de_animal, COUNT(*) AS Total_registrados
+FROM animales a
+JOIN tpAnimales tp ON a.Idtipo = tp.Idtipo
+LEFT JOIN visitas v ON a.Idanimales = v.Idanimales
+GROUP BY tp.Animales
+ORDER BY Total_registrados ASC
+LIMIT 1;
+
+-- Indicador 13: Total de registros por cada tipo de animal
+SELECT tp.Animales AS Tipo_de_animal, COUNT(*) AS Total_registros
+FROM animales a
+JOIN tpAnimales tp ON a.Idtipo = tp.Idtipo
+GROUP BY tp.Animales;
 
