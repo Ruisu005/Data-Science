@@ -20,7 +20,7 @@
 -password="tu_contraseña" (la que pusiste cuando istalaste y configuraste MySQL y Workbench)
 -database="veterinaria"
 
-*Tambien carga la base de datos qu esta en la raiz llamdo: Veteriaria_Backup.sql
+*Tambien carga la base de datos qu esta en la raiz llamdo: VeterinariaOrdi.sql
 
 Una vez ya instaldo todo lo anterior se ejecutara el archivo llamado: data-science.py
 
